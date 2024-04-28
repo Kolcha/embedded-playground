@@ -1,0 +1,155 @@
+#include "main.h"
+
+#include "gpio.h"
+#include "i2c.h"
+#include "usart.h"
+
+#include <stdio.h>
+
+//#include "ssd1306/ssd1306.h"
+//#include "ssd1306/textRenderer/12x16_font.h"
+//#include "ssd1306/textRenderer/TextRenderer.h"
+
+extern "C"
+void SystemClock_Config(void);
+
+// address must be shifted to left by 1 bit
+// unfortunately, buffer must be writable, HAL API requires so...
+static void ssd1306_write_buf(uint8_t addr, uint8_t* buf, size_t sz, bool is_cmd)
+{
+	// 7th bit (continuation bit) is 0 in both cases,
+	// as follow-up write contains only data
+	// 6th bit (data/command bit) is 0 for command
+	// the rest of the bits are always 0
+	uint8_t ctrl_byte = is_cmd ? 0x00 : 0x40;
+	HAL_I2C_Master_Transmit(&hi2c1, addr, &ctrl_byte, 1, 1000);
+	HAL_I2C_Master_Transmit(&hi2c1, addr, buf, sz, 1000);
+}
+
+static void ssd1306_write_cmd_no_arg(uint8_t addr, uint8_t cmd)
+{
+	ssd1306_write_buf(addr, &cmd, 1, true);
+}
+
+static void ssd1306_write_cmd_with_arg(uint8_t addr, uint8_t cmd, uint8_t arg)
+{
+	uint8_t data[] = {cmd, arg};
+	ssd1306_write_buf(addr, data, sizeof(data), true);
+}
+
+static void ssd1306_write_frame(uint8_t addr, uint8_t* data, size_t size)
+{
+	ssd1306_write_buf(addr, data, size, false);
+}
+/*
+// writes command (and its arguments) to i2c bus
+// commands with no arguments (like on/off display, for example)
+// should be sent with @a cont = false, commands with arguments
+// should be sent in few subsequent calls:
+// - the first one (command code itself) must have @a cont = false
+// - the next (command arguments) must have @a cont = true
+// address must be shifted to left by 1 bit
+static void ssd1306_write_cmd(uint8_t addr, uint8_t cmd, bool cont)
+{
+	// control byte + data byte
+	uint8_t data[] = {0x00, cmd};
+	// set 'continuation bit' in the control byte if
+	// we are sending the value for the previously sent command
+	if (cont) data[0] |= 0x80;
+	HAL_I2C_Master_Transmit(&hi2c3, addr, data, sizeof(data), 1000);
+}
+
+// writes frame data buffer to i2c bus
+// @a buf must be frame size + 1, and frame must start with 2nd byte
+// @a sz size must be real buffer size (i.e. number of bytes allocated)
+// the first byte is used for service purposes, to avoid reallocation
+// address must be shifted to left by 1 bit
+static void ssd1306_write_frame(uint8_t addr, const uint8_t* buf, size_t sz)
+{
+	// first byte is a control byte, set 'D/C#' bit to 1
+	buf[0] = 0x40;		// 6th bit, 1 means 'frame data'
+	HAL_I2C_Master_Transmit(&hi2c3, addr, buf, sz, 1000);
+}
+*/
+
+// SSD1306 display
+constexpr const uint8_t ADDR = (0x3C << 1);
+constexpr const uint8_t W = 128;
+constexpr const uint8_t H = 32;
+constexpr const size_t FRAME_SIZE = W*H/8;
+
+uint8_t frame_buffer[FRAME_SIZE] = {0};
+
+// SSD1306 initialization routine
+// address must be shifted to left by 1 bit
+static void ssd1306_init(uint8_t addr)
+{
+	uint8_t init_cmds[] = {
+			0xA8, 0x1F,			// Set Multiplex Ratio A8h, 3Fh/1Fh
+			0xD3, 0x00,			// Set Display Offset D3h, 00h
+			0x40,				// Set Display STart Line 40h
+			0xA0,				// Set Segment re-map A0h/A1h
+			0xC0,				// Set COM Output Scan Direction C0h/C8h
+			0xDA, 0x02,			// Set COM Pins hardware configuration DAh, 02
+			0x81, 0x7F,			// Set Contrast Control 81h, 7Fh
+			0xA4,				// Disable Entire Display On A4h
+			0xA6,				// Set Normal Display A6h
+			0x20, 0x00,			// Set Memory Addressing Mode 20h, 00/01/02
+			0x22, 0x00, 0x03,	// Set Page Address 22h, 0-7, 0-7
+			0xD5, 0x80,			// Set Osc Frequency D5h, 80h
+			0x8D, 0x14,			// Enable charge pump regulator 8Dh, 14h
+			0xAF,				// Display On AFh
+	};
+	ssd1306_write_buf(addr, init_cmds, sizeof(init_cmds), true);
+}
+
+int main()
+{
+	HAL_Init();
+	SystemClock_Config();
+	MX_USART2_UART_Init();
+	MX_I2C1_Init();
+	MX_I2C2_Init();
+	MX_I2C3_Init();
+	MX_GPIO_Init();
+	HAL_Delay(100);
+
+	ssd1306_init(ADDR);
+	uint32_t st = HAL_I2C_GetState(&hi2c1);
+	uint32_t md = HAL_I2C_GetMode(&hi2c1);
+	uint32_t er = HAL_I2C_GetError(&hi2c1);
+	printf("st: %#lx, md: %#lx, er: %#lx\n", st, md, er);
+	HAL_Delay(50);
+	ssd1306_write_frame(ADDR, frame_buffer, sizeof(frame_buffer));
+
+	uint8_t contrast = 0x7F;
+
+	while (true) {
+		st = HAL_I2C_GetState(&hi2c1);
+		md = HAL_I2C_GetMode(&hi2c1);
+		er = HAL_I2C_GetError(&hi2c1);
+		printf("st: %#lx, md: %#lx, er: %#lx\n", st, md, er);
+
+		ssd1306_write_cmd_with_arg(ADDR, 0x81, contrast++);
+
+		for (int i = 0; i < 5; i++) {
+			ssd1306_write_cmd_no_arg(ADDR, 0xA5);
+			HAL_Delay(500);
+			ssd1306_write_cmd_no_arg(ADDR, 0xA4);
+			HAL_Delay(500);
+		}
+
+		frame_buffer[0] = 0x80;
+		ssd1306_write_frame(ADDR, frame_buffer, sizeof(frame_buffer));
+		for (int i = 0; i < 5; i++) {
+			ssd1306_write_cmd_no_arg(ADDR, 0xA7);
+			HAL_Delay(500);
+			ssd1306_write_cmd_no_arg(ADDR, 0xA6);
+			HAL_Delay(500);
+		}
+		frame_buffer[0] = 0x00;
+		ssd1306_write_frame(ADDR, frame_buffer, sizeof(frame_buffer));
+	}
+
+	return 0;
+}
