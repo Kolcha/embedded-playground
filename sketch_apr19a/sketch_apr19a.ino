@@ -549,11 +549,11 @@ static void run_benchmark(int niter = 512)
 
 void setup() {
   //Initialize serial and wait for port to open:
-  Serial1.begin(115200);
-  while (!Serial1) {
+  Serial.begin(115200);
+  while (!Serial) {
     ;  // wait for serial port to connect. Needed for native USB port only
   }
-  Serial1.printf("hellow world! GCC: %d\n", __GNUC__);
+  Serial.printf("hellow world! GCC: %d\n", __GNUC__);
 }
 
 void loop() {
@@ -563,5 +563,5 @@ void loop() {
   delay(1000);
   auto e = std::chrono::high_resolution_clock::now();
   auto d = std::chrono::duration_cast<std::chrono::microseconds>(e-s).count();
-  Serial1.printf("C++: %ld, GCC: %d, delay: %d\n", __cplusplus, __GNUC__, d);
+  Serial.printf("C++: %ld, GCC: %d, delay: %d us\n", __cplusplus, __GNUC__, d);
 }
