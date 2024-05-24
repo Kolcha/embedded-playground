@@ -41,8 +41,8 @@ public:
 
     assert(_fft_out.size() == spectrum.size());
     const auto N = _fft_out.size();
-    for (std::size_t i = 1; i < N; i++) {
-      auto m = i == N-1 ? _fft_out[0].imag() : std::abs(_fft_out[i]);
+    for (std::size_t i = 1; i <= N; i++) {
+      auto m = i == N ? _fft_out[0].imag() : std::abs(_fft_out[i]);
       auto a = 0.15f * std::log(m);
       spectrum[i-1].amplitude = std::clamp(a, 0.f, 1.f);
     }
@@ -53,7 +53,7 @@ private:
   std::vector<InputType> _window;
   std::vector<InputType> _fft_in;
   std::vector<std::complex<InputType>> _fft_out;
-  kissfft<float> _kissfft_obj;
+  kissfft<InputType> _kissfft_obj;
 };
 
 
