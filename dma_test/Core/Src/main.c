@@ -49,7 +49,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 static uint16_t i2sbuf[2];
-static int16_t ch1, ch2;
+static uint16_t ch1, ch2;
 volatile int busy_flag = 0;
 volatile int process_f = 0;
 /* USER CODE END PV */
@@ -123,7 +123,7 @@ int main(void)
     busy_flag = 1;
     while (busy_flag != 0);
     if (process_f != 0) {
-      printf("%6hi : %6hi\n", ch1, ch2);
+      printf("%6hx : %6hx\n", ch1, ch2);
       process_f = 0;
     }
     /* USER CODE END WHILE */
