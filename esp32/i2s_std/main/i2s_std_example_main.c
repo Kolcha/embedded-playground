@@ -20,15 +20,15 @@
 #define EXAMPLE_I2S_DUPLEX_MODE         CONFIG_USE_DUPLEX
 
 #if CONFIG_IDF_TARGET_ESP32
-#define EXAMPLE_STD_BCLK_IO1        GPIO_NUM_4      // I2S bit clock io number
-#define EXAMPLE_STD_WS_IO1          GPIO_NUM_5      // I2S word select io number
-#define EXAMPLE_STD_DOUT_IO1        GPIO_NUM_18     // I2S data out io number
-#define EXAMPLE_STD_DIN_IO1         GPIO_NUM_19     // I2S data in io number
+#define EXAMPLE_STD_BCLK_IO1        GPIO_NUM_14     // I2S bit clock io number
+#define EXAMPLE_STD_WS_IO1          GPIO_NUM_25     // I2S word select io number
+#define EXAMPLE_STD_DOUT_IO1        GPIO_NUM_26     // I2S data out io number
+#define EXAMPLE_STD_DIN_IO1         GPIO_NUM_27     // I2S data in io number
 #if !EXAMPLE_I2S_DUPLEX_MODE
-#define EXAMPLE_STD_BCLK_IO2    GPIO_NUM_22     // I2S bit clock io number
-#define EXAMPLE_STD_WS_IO2      GPIO_NUM_23     // I2S word select io number
-#define EXAMPLE_STD_DOUT_IO2    GPIO_NUM_25     // I2S data out io number
-#define EXAMPLE_STD_DIN_IO2     GPIO_NUM_26     // I2S data in io number
+#define EXAMPLE_STD_BCLK_IO2    GPIO_NUM_14     // I2S bit clock io number
+#define EXAMPLE_STD_WS_IO2      GPIO_NUM_25     // I2S word select io number
+#define EXAMPLE_STD_DOUT_IO2    GPIO_NUM_26     // I2S data out io number
+#define EXAMPLE_STD_DIN_IO2     GPIO_NUM_27     // I2S data in io number
 #endif
 #else
 #define EXAMPLE_STD_BCLK_IO1        GPIO_NUM_2      // I2S bit clock io number
@@ -82,14 +82,14 @@ static void i2s_example_write_task(void *args)
 
     /* Assign w_buf */
     for (int i = 0; i < EXAMPLE_BUFF_SIZE; i += 8) {
-        w_buf[i]     = 0x12;
-        w_buf[i + 1] = 0x34;
-        w_buf[i + 2] = 0x56;
-        w_buf[i + 3] = 0x78;
-        w_buf[i + 4] = 0x9A;
-        w_buf[i + 5] = 0xBC;
-        w_buf[i + 6] = 0xDE;
-        w_buf[i + 7] = 0xF0;
+        w_buf[i]     = 0xFF;
+        w_buf[i + 1] = 0xFF;
+        w_buf[i + 2] = 0x00;
+        w_buf[i + 3] = 0x00;
+        w_buf[i + 4] = 0xFF;
+        w_buf[i + 5] = 0xFF;
+        w_buf[i + 6] = 0x00;
+        w_buf[i + 7] = 0x00;
     }
 
     size_t w_bytes = EXAMPLE_BUFF_SIZE;
@@ -130,7 +130,7 @@ static void i2s_example_init_std_duplex(void)
      * They can help to specify the slot and clock configurations for initialization or re-configuring */
     i2s_std_config_t std_cfg = {
         .clk_cfg  = I2S_STD_CLK_DEFAULT_CONFIG(16000),
-        .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_STEREO),
+        .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO),
         .gpio_cfg = {
             .mclk = I2S_GPIO_UNUSED,    // some codecs may require mclk signal, this example doesn't need it
             .bclk = EXAMPLE_STD_BCLK_IO1,
@@ -169,7 +169,7 @@ static void i2s_example_init_std_simplex(void)
      * They can help to specify the slot and clock configurations for initialization or re-configuring */
     i2s_std_config_t tx_std_cfg = {
         .clk_cfg  = I2S_STD_CLK_DEFAULT_CONFIG(16000),
-        .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_STEREO),
+        .slot_cfg = I2S_STD_MSB_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO),
         .gpio_cfg = {
             .mclk = I2S_GPIO_UNUSED,    // some codecs may require mclk signal, this example doesn't need it
             .bclk = EXAMPLE_STD_BCLK_IO1,
