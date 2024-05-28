@@ -207,7 +207,17 @@ static void MX_I2S5_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN I2S5_Init 2 */
-
+  // i2s hardware bug workaround, need manually sync with WS signal
+  // https://www.st.com/resource/en/errata_sheet/es0287-stm32f411xcxe-device-errata-stmicroelectronics.pdf
+  // https://community.st.com/t5/stm32-mcus-products/stm32f407-i2s-interface-sync-in-slave-mode/m-p/416071
+  // depends on I2S port configuration and communication standard, see the links above for details
+  // the code below is for I2S5 port that configured for PHILIPS standard
+  // in case of I2S5 WS is GPIO port B pin 1
+  while ((GPIOB->IDR & 0x00000002U) == 0) {}
+  while ((GPIOB->IDR & 0x00000002U) != 0) {}
+  while ((GPIOB->IDR & 0x00000002U) == 0) {}
+  // I2S must be enabled after synchronization
+  SPI5->I2SCFGR |= 0x400;       // enable I2S
   /* USER CODE END I2S5_Init 2 */
 
 }
