@@ -45,11 +45,11 @@ DMA_HandleTypeDef hdma_spi5_rx;
 
 TIM_HandleTypeDef htim10;
 
-UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
-static uint16_t i2sbuf[2];
-static uint16_t ch1, ch2;
+static uint16_t i2sbuf[8192];
+//static uint16_t ch1, ch2;
 volatile int busy_flag = 0;
 volatile int process_f = 0;
 /* USER CODE END PV */
@@ -60,7 +60,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_I2S5_Init(void);
 static void MX_TIM10_Init(void);
-static void MX_USART2_UART_Init(void);
+static void MX_USART6_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -72,8 +72,8 @@ int __io_putchar(int ch)
 {
     static uint8_t cr = '\r';
     if (ch == '\n')
-        HAL_UART_Transmit(&huart2, &cr, 1, HAL_MAX_DELAY);
-    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+        HAL_UART_Transmit(&huart6, &cr, 1, HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart6, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
     return ch;
 }
 /* USER CODE END 0 */
@@ -110,7 +110,7 @@ int main(void)
   MX_DMA_Init();
   MX_I2S5_Init();
   MX_TIM10_Init();
-  MX_USART2_UART_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_I2S_Receive_DMA(&hi2s5, i2sbuf, count_of(i2sbuf));
   HAL_TIM_Base_Start_IT(&htim10);
@@ -123,7 +123,13 @@ int main(void)
     busy_flag = 1;
     while (busy_flag != 0);
     if (process_f != 0) {
-      printf("%6hx : %6hx\n", ch1, ch2);
+	    uint32_t eq = 0;
+	    for (int i = 0; i < count_of(i2sbuf)/2; i++) {
+	      uint16_t a = i2sbuf[2*i+0];
+	      uint16_t b = i2sbuf[2*i+1];
+	      eq +=( a == b);
+	    }
+	    printf("eq: %4lu of %4d\n", eq, count_of(i2sbuf)/2);
       process_f = 0;
     }
     /* USER CODE END WHILE */
@@ -254,35 +260,35 @@ static void MX_TIM10_Init(void)
 }
 
 /**
-  * @brief USART2 Initialization Function
+  * @brief USART6 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void)
+static void MX_USART6_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART2_Init 0 */
+  /* USER CODE BEGIN USART6_Init 0 */
 
-  /* USER CODE END USART2_Init 0 */
+  /* USER CODE END USART6_Init 0 */
 
-  /* USER CODE BEGIN USART2_Init 1 */
+  /* USER CODE BEGIN USART6_Init 1 */
 
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
+  /* USER CODE END USART6_Init 1 */
+  huart6.Instance = USART6;
+  huart6.Init.BaudRate = 115200;
+  huart6.Init.WordLength = UART_WORDLENGTH_8B;
+  huart6.Init.StopBits = UART_STOPBITS_1;
+  huart6.Init.Parity = UART_PARITY_NONE;
+  huart6.Init.Mode = UART_MODE_TX_RX;
+  huart6.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart6.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart6) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART2_Init 2 */
+  /* USER CODE BEGIN USART6_Init 2 */
 
-  /* USER CODE END USART2_Init 2 */
+  /* USER CODE END USART6_Init 2 */
 
 }
 
@@ -316,8 +322,8 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
@@ -336,8 +342,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-  ch1 = i2sbuf[0];
-  ch2 = i2sbuf[1];
+//  ch1 = i2sbuf[0];
+//  ch2 = i2sbuf[1];
   busy_flag = 0;
 }
 
