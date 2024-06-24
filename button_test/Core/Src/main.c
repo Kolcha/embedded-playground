@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "gpio_button.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +42,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+GPIO_Button usr_btn = GPIO_BUTTON(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -54,7 +54,10 @@ static void MX_GPIO_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+static void usr_btn_event_handler()
+{
+  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+}
 /* USER CODE END 0 */
 
 /**
@@ -92,60 +95,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  int btn_repeat = 1;				// property flag: 1/0
-  int btn_long_press = 0;			// property flag: 1/0
-  int repeating = 0;				// internal flag: 1/0
-  int long_press_handled = 0;			// internal flag: 1/0
-
-  uint32_t btn_debounce_ms = 30;		// property value: 1 byte
-  uint32_t btn_before_repeat_ms = 300;		// property value: 2 bytes
-  uint32_t btn_repeat_interval_ms = 80;		// property value: 1 byte
-  uint32_t btn_long_press_ms = 2000;		// property value: 2 bytes
-
-  uint32_t press_started = 0;			// internal value
+  usr_btn.repeatable = 1;
+  usr_btn.long_press = 0;
+  usr_btn.click_handler = usr_btn_event_handler;
+  usr_btn.long_press_handler = usr_btn_event_handler;
 
   while (1)
   {
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == 0) {
-	uint32_t now = HAL_GetTick();
-	if (press_started == 0) {
-	    press_started = now;
-	}
-	uint32_t time_passed_ms = now - press_started;
-
-	if (btn_long_press) {
-	    // avoid action repeat after button release
-	    if (long_press_handled) {
-		press_started = 0;
-	    }
-	    // long press
-	    if (!long_press_handled && time_passed_ms >= btn_long_press_ms) {
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		long_press_handled = 1;
-	    }
-	}
-	if (btn_repeat) {
-	    // delay before starting repeat
-	    if (!repeating && time_passed_ms >= btn_before_repeat_ms) {
-		repeating = 1;
-	    }
-	    // delay between repeats
-	    if (repeating && time_passed_ms >= btn_repeat_interval_ms) {
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		press_started = now;
-	    }
-	}
-    } else {
-	int was_pressed = press_started != 0;
-	uint32_t time_passed_ms = HAL_GetTick() - press_started;
-	// single click
-	if (was_pressed && !repeating && time_passed_ms >= btn_debounce_ms) {
-	    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	}
-	long_press_handled = 0;
-	repeating = 0;
-	press_started = 0;
-    }
+    GPIO_ButtonCheckState(&usr_btn);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
