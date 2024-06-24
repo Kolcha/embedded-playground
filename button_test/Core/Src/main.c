@@ -94,12 +94,25 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   int btn_wait_cnt = SystemCoreClock / 1000;
   int btn_repeat = 1;
+  int btn_long_press = 0;
   int cnt = 0;
   int repeating = 0;
+  int long_press_handled = 0;
   while (1)
   {
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == 0) {
 	cnt++;
+	if (btn_long_press) {
+	    // avoid action repeat during long press
+	    if (long_press_handled) {
+		cnt = 0;
+	    }
+	    // long press
+	    if (cnt >= 100*btn_wait_cnt) {
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		long_press_handled = 1;
+	    }
+	}
 	if (btn_repeat) {
 	    // delay before starting repeat
 	    if (!repeating && cnt >= 30*btn_wait_cnt) {
@@ -116,6 +129,7 @@ int main(void)
 	if (!repeating && cnt >= btn_wait_cnt) {
 	    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 	}
+	long_press_handled = 0;
 	repeating = 0;
 	cnt = 0;
     }
