@@ -23,6 +23,8 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
+
+#include "rotary_encoder.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,6 +74,7 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
   char MSG[64] = {'\0'};
+  RotaryEncoder renc;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -95,25 +98,15 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  RotaryEncoderInit(&renc, htim3.Instance);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint32_t last_value = TIM3->CNT;
-  uint32_t max_value = TIM3->ARR;
-  uint32_t delta = max_value / 3;
   while (1)
   {
-    uint32_t curr_value = TIM3->CNT;
-    if (last_value < delta && max_value - curr_value < delta) {
-	TIM3->CNT = 0;
-	curr_value = 0;
-    }
-    if (max_value - last_value < delta && curr_value < delta) {
-	TIM3->CNT = TIM3->ARR;
-	curr_value = TIM3->ARR;
-    }
+    RotaryEncoderGetValue(&renc);
     memset(MSG, 0, sizeof(MSG));
     if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5))
     {
@@ -124,9 +117,6 @@ int main(void)
       sprintf(MSG, "Encoder Switch Pressed,  Encoder Ticks = %lu\n\r", ((TIM3->CNT)>>2));
     }
     HAL_UART_Transmit(&huart1, (uint8_t*)MSG, sizeof(MSG), 100);
-    if (last_value != curr_value) {
-	last_value = curr_value;
-    }
     HAL_Delay(100);
     /* USER CODE END WHILE */
 
