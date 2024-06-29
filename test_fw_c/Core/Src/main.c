@@ -117,19 +117,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-/*
     for (int i = 0; i < 8; i++) {
       max7219_clear();
       max7219_set_row(i);
-      HAL_Delay(15);
+      HAL_Delay(150);
     }
 
     for (int i = 0; i < 8; i++) {
       max7219_clear();
       max7219_set_col(i);
-      HAL_Delay(15);
+      HAL_Delay(150);
     }
-*/
+/*
     if (should_toggle_display) {
       toggle_display();
       should_toggle_display = false;
@@ -146,6 +145,7 @@ int main(void)
       oled128x32_set_col(i);
       HAL_Delay(8);
     }
+*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
