@@ -106,7 +106,7 @@ int main(void)
   while (1)
   {
     uint32_t curr_value = TIM3->CNT;
-    if (last_value < delta && curr_value - last_value > delta) {
+    if (last_value < delta && max_value - curr_value < delta) {
 	TIM3->CNT = 0;
 	curr_value = 0;
     }
