@@ -1,0 +1,90 @@
+#pragma once
+
+#define DISPLAY_SEGMENT_PINS_COUNT              15
+#define DISPLAY_GRID_PINS_COUNT                 13
+#define DISPLAY_DIGITS_COUNT                    7
+
+#define DISPLAY_SEGMENT_A                       DISPLAY_PIN_1
+#define DISPLAY_SEGMENT_B                       DISPLAY_PIN_2
+#define DISPLAY_SEGMENT_C                       DISPLAY_PIN_9
+#define DISPLAY_SEGMENT_D                       DISPLAY_PIN_14
+#define DISPLAY_SEGMENT_E                       DISPLAY_PIN_13
+#define DISPLAY_SEGMENT_F                       DISPLAY_PIN_6
+#define DISPLAY_SEGMENT_G1                      DISPLAY_PIN_7
+#define DISPLAY_SEGMENT_G2                      DISPLAY_PIN_8
+#define DISPLAY_SEGMENT_H                       DISPLAY_PIN_3
+#define DISPLAY_SEGMENT_I                       DISPLAY_PIN_4
+#define DISPLAY_SEGMENT_J                       DISPLAY_PIN_5
+#define DISPLAY_SEGMENT_K                       DISPLAY_PIN_12
+#define DISPLAY_SEGMENT_L                       DISPLAY_PIN_11
+#define DISPLAY_SEGMENT_M                       DISPLAY_PIN_10
+
+#define DISPLAY_SEGMENT_DP                      DISPLAY_PIN_15
+
+#define DISPLAY_LABEL_STEREO                    DISPLAY_PIN_1
+#define DISPLAY_LABEL_AC_3                      DISPLAY_PIN_2
+#define DISPLAY_SYMBOL_DOLBY                    DISPLAY_PIN_3
+#define DISPLAY_LABEL_PROLOGIC                  DISPLAY_PIN_4
+#define DISPLAY_SYMBOL_PLAY                     DISPLAY_PIN_5
+#define DISPLAY_SYMBOL_PAUSE                    DISPLAY_PIN_6
+#define DISPLAY_LABEL_DSG                       DISPLAY_PIN_7
+#define DISPLAY_LABEL_PBC                       DISPLAY_PIN_8
+#define DISPLAY_ARROW_NORMAL                    DISPLAY_PIN_9
+#define DISPLAY_LABEL_NORMAL                    DISPLAY_PIN_10
+#define DISPLAY_ARROW_PHANTOM                   DISPLAY_PIN_11
+#define DISPLAY_LABEL_PHANTOM                   DISPLAY_PIN_12
+#define DISPLAY_ARROW_WIDE                      DISPLAY_PIN_13
+#define DISPLAY_LABEL_WIDE                      DISPLAY_PIN_14
+#define DISPLAY_SYMBOL_MUTE                     DISPLAY_PIN_15
+#define DISPLAY_LABEL_PRG                       DISPLAY_PIN_15
+#define DISPLAY_LABEL_AM                        DISPLAY_PIN_15
+#define DISPLAY_LABEL_FM                        DISPLAY_PIN_15
+#define DISPLAY_LABEL_AUTO                      DISPLAY_PIN_15
+#define DISPLAY_LABEL_SLEEP                     DISPLAY_PIN_15
+#define DISPLAY_LABEL_MEM                       DISPLAY_PIN_15
+#define DISPLAY_LABEL_KHZ                       DISPLAY_PIN_14
+#define DISPLAY_LABEL_MHZ                       DISPLAY_PIN_15
+#define DISPLAY_SYMBOL_MIC1                     DISPLAY_PIN_12
+#define DISPLAY_SYMBOL_MIC2                     DISPLAY_PIN_13
+
+#define DISPLAY_DSP_LABEL                       DISPLAY_PIN_10
+#define DISPLAY_DSP_CIRCLE                      DISPLAY_PIN_11
+#define DISPLAY_DSP_DOT1                        DISPLAY_PIN_9
+#define DISPLAY_DSP_DOT2                        DISPLAY_PIN_8
+#define DISPLAY_DSP_DOT3                        DISPLAY_PIN_7
+#define DISPLAY_DSP_DOT4                        DISPLAY_PIN_6
+#define DISPLAY_DSP_DOT5                        DISPLAY_PIN_5
+#define DISPLAY_DSP_DOT6                        DISPLAY_PIN_4
+#define DISPLAY_DSP_DOT7                        DISPLAY_PIN_3
+#define DISPLAY_DSP_DOT8                        DISPLAY_PIN_2
+#define DISPLAY_DSP_DOT9                        DISPLAY_PIN_1
+
+#define DISPLAY_BARS_VLINES                     DISPLAY_PIN_15
+#define DISPLAY_BARS_LEVEL1                     DISPLAY_PIN_14
+#define DISPLAY_BARS_LEVEL2                     DISPLAY_PIN_13
+#define DISPLAY_BARS_LEVEL3                     DISPLAY_PIN_12
+#define DISPLAY_BARS_LEVEL4                     DISPLAY_PIN_11
+#define DISPLAY_BARS_LEVEL5                     DISPLAY_PIN_10
+#define DISPLAY_BARS_LEVEL6                     DISPLAY_PIN_9
+#define DISPLAY_BARS_LEVEL7                     DISPLAY_PIN_8
+#define DISPLAY_BARS_LEVEL8                     DISPLAY_PIN_7
+#define DISPLAY_BARS_LEVEL9                     DISPLAY_PIN_6
+#define DISPLAY_BARS_LEVEL10                    DISPLAY_PIN_5
+#define DISPLAY_BARS_LEVEL11                    DISPLAY_PIN_4
+#define DISPLAY_BARS_LEVEL12                    DISPLAY_PIN_3
+#define DISPLAY_BARS_LEVEL13                    DISPLAY_PIN_2
+#define DISPLAY_BARS_LEVEL14                    DISPLAY_PIN_1
+
+#define DISPLAY_GRID_INDICATORS_L               DISPLAY_PIN_17
+#define DISPLAY_GRID_DIGIT1_PRG                 DISPLAY_PIN_18
+#define DISPLAY_GRID_DIGIT2_AM                  DISPLAY_PIN_19
+#define DISPLAY_GRID_DIGIT3_FM                  DISPLAY_PIN_20
+#define DISPLAY_GRID_DIGIT4_AUTO                DISPLAY_PIN_21
+#define DISPLAY_GRID_DIGIT5_DP                  DISPLAY_PIN_22
+#define DISPLAY_GRID_DIGIT6_SLEEP               DISPLAY_PIN_23
+#define DISPLAY_GRID_DIGIT7_MEM                 DISPLAY_PIN_24
+#define DISPLAY_GRID_INDICATORS_R               DISPLAY_PIN_25
+#define DISPLAY_GRID_BAR1_VLINE_L               DISPLAY_PIN_26
+#define DISPLAY_GRID_BAR2                       DISPLAY_PIN_27
+#define DISPLAY_GRID_BAR3                       DISPLAY_PIN_28
+#define DISPLAY_GRID_BAR4_VLINE_R               DISPLAY_PIN_29
