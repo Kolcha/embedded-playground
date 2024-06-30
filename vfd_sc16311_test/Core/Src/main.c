@@ -59,7 +59,7 @@ TIM_HandleTypeDef htim14;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-static uint8_t display_buffer[SC16311_RAM_SIZE];
+static uint8_t display_buffer[22];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,8 +99,8 @@ static void SC16311_Init()
 		    SC16311_DATA_WRITE_MEM);
 //  memset(display_buffer, 0xFF, sizeof(display_buffer));	// t4
   sc16311_write_data(0x00, display_buffer, sizeof(display_buffer));
-  sc16311_write_cmd(SC16311_CMD_DISPLAY_MODE |
-		    SC16311_DISPLAY_MODE_13DIG_15SEG);
+  sc16311_write_cmd(SC16311_CMD_DISPLAY_MODE | 0x04);
+//		    SC16311_DISPLAY_MODE_13DIG_15SEG);
   sc16311_write_cmd(SC16311_CMD_DISPLAY_CONTROL |
 		    SC16311_DISPLAY_ON | SC16311_DISPLAY_PW_14_16);
 }
@@ -148,12 +148,12 @@ int main(void)
   while (1)
   {
     // t3
-    for (int g = 0; g < DISPLAY_GRID_PINS_COUNT; g++) {
-	for (int s = 0; s < DISPLAY_SEGMENT_PINS_COUNT; s++) {
+    for (int g = 0; g < 8; g++) {
+	for (int s = 0; s < 14; s++) {
 	    memset(display_buffer, 0, sizeof(display_buffer));
 	    sc16311_enable_segment(display_buffer, g+1, s+1);
 	    sc16311_write_data(0x00, display_buffer, sizeof(display_buffer));
-	    HAL_Delay(150);
+	    HAL_Delay(250);
 	}
     }
     /* USER CODE END WHILE */

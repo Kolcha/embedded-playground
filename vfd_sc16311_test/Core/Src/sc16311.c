@@ -2,7 +2,7 @@
 
 static inline uint8_t byte_offset(uint8_t dig, uint8_t seg)
 {
-  return (dig-1)*3 + (seg-1)/8;
+  return (dig-1)*2 + (seg-1)/8;
 }
 
 static inline uint8_t segment_mask(uint8_t seg)
