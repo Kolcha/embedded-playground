@@ -95,9 +95,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  usr_btn.repeatable = 1;
-  usr_btn.long_press = 0;
+//  usr_btn.mode = GPIO_BUTTON_MODE_LONG_PRESS;
+  usr_btn.mode = GPIO_BUTTON_MODE_REPEAT;
+//  usr_btn.mode |= GPIO_BUTTON_FLAG_DBL_CLICK;
   usr_btn.click_handler = usr_btn_event_handler;
+  usr_btn.double_click_handler = usr_btn_event_handler;
   usr_btn.long_press_handler = usr_btn_event_handler;
 
   while (1)
