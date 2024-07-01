@@ -18,6 +18,7 @@ typedef struct {
 // convenient macro for rotary encoder declaration
 #define ROTARY_ENCODER(Timer)                     \
 {                                                 \
+  .value_changed_handler = NULL,                  \
   .timer = Timer,                                 \
   .last_value = 0,                                \
 }
