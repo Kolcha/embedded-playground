@@ -48,7 +48,7 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+static RotaryEncoder renc = ROTARY_ENCODER(TIM3);
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,7 +62,23 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// to get printf() work
+int __io_putchar(int ch)
+{
+  if (ch == '\n') {
+    static uint8_t cr = '\r';
+    HAL_UART_Transmit(&huart1, &cr, 1, 1);
+  }
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 1);
+  return ch;
+}
 
+static void value_changed_handler(uint32_t val)
+{
+  val >>= 1;
+  val = val * 1000 / (TIM3->ARR / 2);
+  printf("encoder value: %lu\n", val);
+}
 /* USER CODE END 0 */
 
 /**
@@ -73,8 +89,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  char MSG[64] = {'\0'};
-  RotaryEncoder renc;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,26 +113,16 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  RotaryEncoderInit(&renc, htim3.Instance);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  renc.value_changed_handler = &value_changed_handler;
+
   while (1)
   {
     RotaryEncoderGetValue(&renc);
-    memset(MSG, 0, sizeof(MSG));
-    if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5))
-    {
-      sprintf(MSG, "Encoder Switch Released, Encoder Ticks = %lu\n\r", ((TIM3->CNT)>>2));
-    }
-    else
-    {
-      sprintf(MSG, "Encoder Switch Pressed,  Encoder Ticks = %lu\n\r", ((TIM3->CNT)>>2));
-    }
-    HAL_UART_Transmit(&huart1, (uint8_t*)MSG, sizeof(MSG), 100);
-    HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -191,7 +196,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 400;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   sConfig.EncoderMode = TIM_ENCODERMODE_TI12;

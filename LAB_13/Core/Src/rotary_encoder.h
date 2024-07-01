@@ -11,14 +11,16 @@ typedef struct {
   void(*value_changed_handler)(uint32_t);
   // configuration
   TIM_TypeDef* timer;
-  uint32_t delta;
   // internal state
-  uint32_t _last_value;
+  uint32_t last_value;
 } RotaryEncoder;
 
-// should be called each time timer parameters change
-// configuration adjustments should be done after this call
-void RotaryEncoderInit(RotaryEncoder* enc, TIM_TypeDef* timer);
+// convenient macro for rotary encoder declaration
+#define ROTARY_ENCODER(Timer)                     \
+{                                                 \
+  .timer = Timer,                                 \
+  .last_value = 0,                                \
+}
 
 // should be called periodically, often as possible
 uint32_t RotaryEncoderGetValue(RotaryEncoder* enc);
