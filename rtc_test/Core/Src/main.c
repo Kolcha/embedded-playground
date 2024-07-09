@@ -179,6 +179,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim11);
   max7219_init_all();
 
+  usr_btn.long_press_ms = 1500;
   usr_btn.before_repeat_ms = 400;
   usr_btn.repeat_interval_ms = 160;
 

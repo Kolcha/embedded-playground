@@ -84,11 +84,13 @@ static void date_time_config_enter();
 
 static void set_h_state_timer_event(const ClockState** cstate);
 static void set_h_state_short_press(const ClockState** cstate);
+static void set_h_state_long_press(const ClockState** cstate);
 static void set_h_state_double_click(const ClockState** cstate);
 
 static const ClockState set_h_state = {
   .timer_event = &set_h_state_timer_event,
   .short_press = &set_h_state_short_press,
+  .long_press = &set_h_state_long_press,
   .double_click = &set_h_state_double_click,
 };
 
@@ -187,6 +189,14 @@ static void set_h_state_short_press(const ClockState** cstate)
   rtc_set_date_time();
   max7219_display[1] = 0;   // always draw dots
   display_time();
+}
+
+static void set_h_state_long_press(const ClockState** cstate)
+{
+  UNUSED(cstate);
+  // button driver bug workaround:
+  // don't change button mode until button released
+  date_time_config_enter();
 }
 
 static void set_h_state_double_click(const ClockState** cstate)
