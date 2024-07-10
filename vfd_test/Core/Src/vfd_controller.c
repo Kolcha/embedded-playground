@@ -29,13 +29,13 @@ static inline uint8_t ram_size(const vfd_controller* c)
   return bytes_per_digit(c) * c->max_digits;
 }
 
-void vfd_enable_segment(const vfd_controller* c, uint8_t buf[],
+void vfd_enable_segment(const vfd_controller* c, uint8_t buf[], uint8_t sz,
                         uint8_t dig, uint8_t seg)
 {
   buf[byte_offset(c, dig, seg)] |= segment_mask(seg);
 }
 
-void vfd_disable_segment(const vfd_controller* c, uint8_t buf[],
+void vfd_disable_segment(const vfd_controller* c, uint8_t buf[], uint8_t sz,
                          uint8_t dig, uint8_t seg)
 {
   buf[byte_offset(c, dig, seg)] &= ~segment_mask(seg);

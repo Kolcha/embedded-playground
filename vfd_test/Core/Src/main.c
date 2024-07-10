@@ -177,7 +177,7 @@ int main(void)
     for (int d = 1; d <= cntrl->max_digits; d++) {
 	for (int s = 1; s <= cntrl->max_segments; s++) {
 	    memset(display_buffer, 0, sizeof(display_buffer));
-	    vfd_enable_segment(cntrl, display_buffer, d, s);
+	    vfd_enable_segment(cntrl, display_buffer, sizeof(display_buffer), d, s);
 	    vfd_write_data(cntrl, 0x00, display_buffer, sizeof(display_buffer));
 	    HAL_Delay(250);
 	}

@@ -20,9 +20,9 @@ typedef struct {
 
 // doesn't write data to the controller, does only in-memory changes
 // digit/segment counting starts from 1, not 0!
-void vfd_enable_segment(const vfd_controller* c, uint8_t buf[],
+void vfd_enable_segment(const vfd_controller* c, uint8_t buf[], uint8_t sz,
                         uint8_t dig, uint8_t seg);
-void vfd_disable_segment(const vfd_controller* c, uint8_t buf[],
+void vfd_disable_segment(const vfd_controller* c, uint8_t buf[], uint8_t sz,
                          uint8_t dig, uint8_t seg);
 
 void vfd_write_cmd(const vfd_controller* c, uint8_t cmd);
