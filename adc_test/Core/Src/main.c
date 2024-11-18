@@ -18,11 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,7 +48,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-uint32_t AD_RES_BUFFER[4];
+uint16_t AD_RES_BUFFER[4096];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -115,7 +114,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-  HAL_ADC_Start_DMA(&hadc1, AD_RES_BUFFER, 4);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)AD_RES_BUFFER, sizeof(AD_RES_BUFFER)/2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -195,7 +194,7 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = ENABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
@@ -386,8 +385,8 @@ static void MX_GPIO_Init(void)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
   static int cnt = 0;
-  if (cnt++ % 20000 == 0)
-  printf("%lu\n", AD_RES_BUFFER[3]);
+  if (cnt++ % 25 == 0)
+  printf("%hu\n", AD_RES_BUFFER[3]);
     // Conversion Complete & DMA Transfer Complete As Well
     // So The AD_RES_BUFFER Is Now Updated & Let's Move Values To The PWM CCRx
     // Update The PWM Channels With Latest ADC Scan Conversion Results
