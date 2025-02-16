@@ -71,7 +71,7 @@ static void draw_glyph(const display_t* disp,
       assert(0 <= tx && tx < (int)disp->w);
       assert(0 <= ty && ty < (int)disp->h);
 
-      unsigned char m = 1U << (8 - (c % 8));
+      unsigned char m = 1U << (7 - (c % 8));
       bool en = (glyph->data[i] & m) != 0;
       display_set_pixel(disp, tx, ty, en);
     }
