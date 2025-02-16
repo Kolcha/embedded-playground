@@ -256,3 +256,9 @@ static const unsigned char font_data_lat2_08[] = {
   0x00, 0x30, 0xFC, 0x30, 0x30, 0x36, 0x1C, 0x0C,
   0x00, 0x18, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
+
+#define FONT_CHAR_W_LAT2_08  8
+#define FONT_CHAR_H_LAT2_08  8
+#define FONT_CHARSZ_LAT2_08  8
+
+#define FONT_LENGTH_LAT2_08  (sizeof(font_data_lat2_08) / FONT_CHARSZ_LAT2_08)

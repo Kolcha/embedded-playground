@@ -33,6 +33,9 @@ typedef struct {
   const bmp_font_t* font;
 } render_context_t;
 
+// draw given char at (x,y)
+// char's (0,0) is top-left
+void draw_char(const render_context_t* ctx, int x, int y, uint16_t c);
 // draw given text at (x,y)
 // text's (0,0) is top-left
 // text must be null-terminated

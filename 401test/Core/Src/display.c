@@ -78,8 +78,7 @@ static void draw_glyph(const display_t* disp,
   }
 }
 
-static void draw_char(const render_context_t* ctx,
-                      int x, int y, uint16_t c)
+void draw_char(const render_context_t* ctx, int x, int y, uint16_t c)
 {
   font_glyph_t g;
   font_get_glyph(ctx->font, c, &g);

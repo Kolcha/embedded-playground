@@ -61,10 +61,10 @@ static const display_t ssd1306_128x32 = {
 };
 
 static const bmp_font_t lat1_08 = {
-  .w = 8,
-  .h = 8,
-  .n = 256,
-  .csz = 8,
+  .w = FONT_CHAR_W_LAT1_08,
+  .h = FONT_CHAR_H_LAT1_08,
+  .n = FONT_LENGTH_LAT1_08,
+  .csz = FONT_CHARSZ_LAT1_08,
   .data = font_data_lat1_08,
 };
 
