@@ -102,7 +102,6 @@ static void ssd1306_init()
 {
   // 128x32 display is assumed, must be adjusted for another one
   const uint8_t init_seq[] = {
-//    0xAE,			// display off
     // the sequence is according to datasheet
     0xA8, 0x1F,                 // MUX Ratio, 31 (H - 1)
     0xD3, 0x00,			// display offset, 0
@@ -272,10 +271,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
   uint8_t ctr_byte = 0x40;
   transfer_frame = true;
   HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, &ctr_byte, 1, I2C_FIRST_AND_NEXT_FRAME);
-//  HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, framebuffer, 128, I2C_NEXT_FRAME);
-//  HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, framebuffer, 128, I2C_NEXT_FRAME);
-//  HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, framebuffer, 128, I2C_NEXT_FRAME);
-//  HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, framebuffer, 512, I2C_LAST_FRAME);
 }
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
