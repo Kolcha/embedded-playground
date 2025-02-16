@@ -28,6 +28,9 @@
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
 #include <string.h>
+
+#include "display.h"
+#include "lat1-08.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +52,27 @@
 
 /* USER CODE BEGIN PV */
 static uint8_t framebuffer[512];
+
+static const display_t ssd1306_128x32 = {
+  .w = 128,
+  .h = 32,
+  .buf_sz = sizeof(framebuffer),
+  .buf = framebuffer,
+};
+
+static const bmp_font_t lat1_08 = {
+  .w = 8,
+  .h = 8,
+  .n = 256,
+  .csz = 8,
+  .data = font_data_lat1_08,
+};
+
+static const render_context_t rctx = {
+  .disp = &ssd1306_128x32,
+  .font = &lat1_08,
+};
+
 static volatile bool transfer_frame = false;
 /* USER CODE END PV */
 
@@ -240,6 +264,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
   framebuffer[508] = framebuffer[0];
   framebuffer[511] = framebuffer[3];
   bw = !bw;
+
+  draw_text(&rctx, 48, 4, "Test\nText\nLine");
 
   if (transfer_frame) return;		// should not happen, but still
 
