@@ -49,6 +49,8 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 uint16_t AD_RES_BUFFER[4096];
+static volatile int done = 0;
+static volatile int prnt = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,6 +126,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    if (done && !prnt) {
+	for (int i = 0; i < 1024; i++) {
+	    printf("%hu\n", AD_RES_BUFFER[4*i+3]);
+	}
+	printf("==\n");
+	prnt = 1;
+    }
   }
   /* USER CODE END 3 */
 }
@@ -165,7 +174,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
@@ -194,7 +203,7 @@ static void MX_ADC1_Init(void)
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = ENABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
@@ -242,6 +251,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = 4;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -382,11 +392,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+int16_t cvt16(uint16_t x)
+{
+  return (x << 4) - 32767;
+}
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-  static int cnt = 0;
-  if (cnt++ % 25 == 0)
-  printf("%hu\n", AD_RES_BUFFER[3]);
+  done = 1;
+//  static int cnt = 0;
+//  if (cnt++ % 25 == 0)
+//  printf("%hd\n", AD_RES_BUFFER[3]);
     // Conversion Complete & DMA Transfer Complete As Well
     // So The AD_RES_BUFFER Is Now Updated & Let's Move Values To The PWM CCRx
     // Update The PWM Channels With Latest ADC Scan Conversion Results
