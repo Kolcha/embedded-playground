@@ -22,6 +22,7 @@
 #include "i2c.h"
 #include "i2s.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -158,6 +159,7 @@ int main(void)
   MX_TIM3_Init();
   MX_I2C1_Init();
   MX_TIM10_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(10);  // some delay is required to get display work from cold start
   ssd1306_init();
