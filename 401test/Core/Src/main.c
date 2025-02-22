@@ -29,6 +29,7 @@
 #include <stdbool.h>
 
 #include "display.h"
+#include "gpio_button.h"
 
 #include "app_state_machine.h"
 /* USER CODE END Includes */
@@ -59,6 +60,8 @@ static const display_t ssd1306_128x32 = {
   .buf_sz = sizeof(framebuffer),
   .buf = framebuffer,
 };
+
+GPIO_Button usr_btn = GPIO_BUTTON(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
 
 static volatile bool time_to_render = true;
 static volatile bool transfer_frame = false;
@@ -110,6 +113,11 @@ static void ssd1306_init()
   };
   ssd1306_write_cmd_bytes(0x3C, init_seq, sizeof(init_seq));
 }
+
+static void button_handle_short_press()
+{
+  app_sm.curr_state->api->button(&app_state_data);
+}
 /* USER CODE END 0 */
 
 /**
@@ -120,7 +128,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  usr_btn.click_handler = &button_handle_short_press;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -161,6 +169,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    GPIO_ButtonCheckState(&usr_btn);
+
     if (time_to_render) {
       app_sm.curr_state->api->render(&app_state_data, &ssd1306_128x32);
       time_to_render = false;

@@ -30,4 +30,7 @@ struct state_machine {
   const struct sm_transition* transitions;
 };
 
+void sm_switch_to_prev_state(struct state_machine* sm);
+void sm_switch_to_next_state(struct state_machine* sm);
+
 #endif /* __STATE_MACHINE_H__ */

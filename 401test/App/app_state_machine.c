@@ -3,10 +3,16 @@
 #include <stddef.h>
 
 #include "states/default.h"
+#include "states/state2.h"
 
 static struct sm_state_api const state_default_api = {
   .render = &state_default_render,
   .button = &state_default_button,
+};
+
+static struct sm_state_api const state_state2_api = {
+  .render = &state_state2_render,
+  .button = &state_state2_button,
 };
 
 static struct sm_state const sm_all_states[] = {
@@ -16,11 +22,22 @@ static struct sm_state const sm_all_states[] = {
 
     .api = &state_default_api,
   },
+
+  {
+    .on_state_enter = &state_state2_on_enter,
+    .on_state_leave = &state_state2_on_leave,
+
+    .api = &state_state2_api,
+  },
 };
 
 static struct sm_transition const sm_all_transitions[] = {
   {
     .prev_state = NULL,
+    .next_state = &sm_all_states[1],
+  },
+  {
+    .prev_state = &sm_all_states[0],
     .next_state = NULL,
   },
 };
