@@ -27,10 +27,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-#include <string.h>
 
 #include "display.h"
-#include "lat1-08.h"
+
+#include "app_state_machine.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,19 +60,7 @@ static const display_t ssd1306_128x32 = {
   .buf = framebuffer,
 };
 
-static const bmp_font_t lat1_08 = {
-  .w = FONT_CHAR_W_LAT1_08,
-  .h = FONT_CHAR_H_LAT1_08,
-  .n = FONT_LENGTH_LAT1_08,
-  .csz = FONT_CHARSZ_LAT1_08,
-  .data = font_data_lat1_08,
-};
-
-static const render_context_t rctx = {
-  .disp = &ssd1306_128x32,
-  .font = &lat1_08,
-};
-
+static volatile bool time_to_render = true;
 static volatile bool transfer_frame = false;
 /* USER CODE END PV */
 
@@ -166,12 +154,21 @@ int main(void)
   HAL_Delay(10);  // some delay is required to get display work from cold start
   ssd1306_init();
   HAL_TIM_Base_Start_IT(&htim10);
+  app_state_machine_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    if (time_to_render) {
+      app_sm.curr_state->api->render(&app_state_data, &ssd1306_128x32);
+      time_to_render = false;
+
+      uint8_t ctr_byte = 0x40;
+      transfer_frame = true;
+      HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, &ctr_byte, 1, I2C_FIRST_AND_NEXT_FRAME);
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -246,6 +243,7 @@ void PeriphCommonClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
+  time_to_render = true;
 //  static const int ticks_on = 4;
 //  static const int ticks_off = 150;
 //  static int ticks_to_wait = ticks_off;
@@ -255,22 +253,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 //    ticks_to_wait = ticks_to_wait == ticks_off ? ticks_on : ticks_off;
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 //  }
-
-  static bool bw = true;
-  memset(framebuffer, bw ? 0x00 : 0xFF, sizeof(framebuffer));
-  framebuffer[0] = bw ? 0x01 : 0xFE;
-  framebuffer[3] = bw ? 0x80 : 0x7F;
-  framebuffer[508] = framebuffer[0];
-  framebuffer[511] = framebuffer[3];
-  bw = !bw;
-
-  draw_text(&rctx, 48, 4, "Test\nText\nLine");
-
-  if (transfer_frame) return;		// should not happen, but still
-
-  uint8_t ctr_byte = 0x40;
-  transfer_frame = true;
-  HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, &ctr_byte, 1, I2C_FIRST_AND_NEXT_FRAME);
 }
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
