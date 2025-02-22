@@ -28,6 +28,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "display.h"
 #include "gpio_button.h"
@@ -65,7 +66,15 @@ static const display_t ssd1306_128x32 = {
 GPIO_Button usr_btn = GPIO_BUTTON(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
 
 static volatile bool time_to_render = true;
-static volatile bool transfer_frame = false;
+
+enum i2c_transfer_state_t {
+  I2C_STATE_TRANSFER_CTRL_BYTES = 0x01,
+  I2C_STATE_TRANSFER_DATA_BYTES = 0x02,
+};
+
+static volatile uint8_t i2c_state = 0u;
+static volatile uint32_t fts = 0;
+static volatile uint32_t ftt = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -169,16 +178,24 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint32_t lt = HAL_GetTick();
   while (1)
   {
     GPIO_ButtonCheckState(&usr_btn);
 
     if (time_to_render) {
+      uint32_t rst = HAL_GetTick();
+      uint32_t lft = rst - lt;
       app_sm.curr_state->api->render(&app_state_data, &ssd1306_128x32);
+      uint32_t ret = HAL_GetTick();
+      uint32_t frt = ret - rst;
       time_to_render = false;
+      printf("since last frame: %4lu ms  rendering: %2lu ms  transfer: %lu ms\n", lft, frt, ftt);
+      lt = ret;
 
       uint8_t ctr_byte = 0x40;
-      transfer_frame = true;
+      i2c_state |= I2C_STATE_TRANSFER_CTRL_BYTES;
+      fts = HAL_GetTick();
       HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, &ctr_byte, 1, I2C_FIRST_AND_NEXT_FRAME);
     }
     /* USER CODE END WHILE */
@@ -269,9 +286,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-  if (!transfer_frame) return;		// callback after frame transfer
-  HAL_I2C_Master_Seq_Transmit_DMA(&hi2c1, 0x3C << 1, framebuffer, 512, I2C_LAST_FRAME);
-  transfer_frame = false;
+  if (i2c_state & I2C_STATE_TRANSFER_CTRL_BYTES) {
+    i2c_state &= ~I2C_STATE_TRANSFER_CTRL_BYTES;
+    i2c_state |= I2C_STATE_TRANSFER_DATA_BYTES;
+    HAL_I2C_Master_Seq_Transmit_DMA(hi2c, 0x3C << 1, framebuffer, 512, I2C_LAST_FRAME);
+    return;
+  }
+
+  if (i2c_state & I2C_STATE_TRANSFER_DATA_BYTES) {
+    i2c_state &= ~I2C_STATE_TRANSFER_DATA_BYTES;
+    ftt = HAL_GetTick() - fts;
+    return;
+  }
 }
 /* USER CODE END 4 */
 
