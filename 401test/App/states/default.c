@@ -39,7 +39,15 @@ void state_default_render(state_data_t* data, const display_t* disp)
   draw_text(&rctx, 48, 4, "Test\nText\nLine");
 }
 
-void state_default_button(state_data_t* data)
+void state_default_button_m(state_data_t* data)
 {
   sm_switch_to_next_state(data->state_machine);
+}
+
+void state_default_button_1(state_data_t* data)
+{
+}
+
+void state_default_button_2(state_data_t* data)
+{
 }

@@ -63,7 +63,10 @@ static const display_t ssd1306_128x32 = {
   .buf = framebuffer,
 };
 
-GPIO_Button usr_btn = GPIO_BUTTON(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+GPIO_Button ubtn = GPIO_BUTTON(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+GPIO_Button btn1 = GPIO_BUTTON(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+// pull-up resistor seems to be dead on pin B2, so use pull-down
+GPIO_Button btn2 = GPIO_BUTTON(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
 
 static volatile bool time_to_render = true;
 
@@ -124,9 +127,22 @@ static void ssd1306_init()
   ssd1306_write_cmd_bytes(0x3C, init_seq, sizeof(init_seq));
 }
 
-static void button_handle_short_press()
+static void button_m_handle_short_press()
 {
-  app_sm.curr_state->api->button(&app_state_data);
+  printf("%s\n", __FUNCTION__);
+  app_sm.curr_state->api->button_m(&app_state_data);
+}
+
+static void button_1_handle_short_press()
+{
+  printf("%s\n", __FUNCTION__);
+  app_sm.curr_state->api->button_1(&app_state_data);
+}
+
+static void button_2_handle_short_press()
+{
+  printf("%s\n", __FUNCTION__);
+  app_sm.curr_state->api->button_2(&app_state_data);
 }
 /* USER CODE END 0 */
 
@@ -138,7 +154,13 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  usr_btn.click_handler = &button_handle_short_press;
+  ubtn.click_handler = &button_m_handle_short_press;
+
+  btn1.mode = GPIO_BUTTON_MODE_REPEAT;
+  btn2.mode = GPIO_BUTTON_MODE_REPEAT;
+
+  btn1.click_handler = &button_1_handle_short_press;
+  btn2.click_handler = &button_2_handle_short_press;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -181,9 +203,11 @@ int main(void)
   uint32_t lt = HAL_GetTick();
   while (1)
   {
-    GPIO_ButtonCheckState(&usr_btn);
+    GPIO_ButtonCheckState(&ubtn);
+    GPIO_ButtonCheckState(&btn1);
+    GPIO_ButtonCheckState(&btn2);
 
-    if (time_to_render) {
+    if (time_to_render && i2c_state == 0) {
       uint32_t rst = HAL_GetTick();
       uint32_t lft = rst - lt;
       app_sm.curr_state->api->render(&app_state_data, &ssd1306_128x32);

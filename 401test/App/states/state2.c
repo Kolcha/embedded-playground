@@ -24,7 +24,15 @@ void state_state2_render(state_data_t* data, const display_t* disp)
   draw_text(&rctx, 8, 8, "Test Text Line");
 }
 
-void state_state2_button(state_data_t* data)
+void state_state2_button_m(state_data_t* data)
 {
-  sm_switch_to_prev_state(data->state_machine);
+  sm_switch_to_next_state(data->state_machine);
+}
+
+void state_state2_button_1(state_data_t* data)
+{
+}
+
+void state_state2_button_2(state_data_t* data)
+{
 }
