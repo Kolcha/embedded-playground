@@ -13,4 +13,6 @@ void state_state3_button_m(state_data_t* data);
 void state_state3_button_1(state_data_t* data);
 void state_state3_button_2(state_data_t* data);
 
+void state_state3_encoder_value(state_data_t* data, uint32_t val);
+
 #endif /* __STATE_STATE3_H__ */

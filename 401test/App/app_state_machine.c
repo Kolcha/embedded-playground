@@ -28,6 +28,8 @@ static struct sm_state_api const state_state3_api = {
   .button_m = &state_state3_button_m,
   .button_1 = &state_state3_button_1,
   .button_2 = &state_state3_button_2,
+
+  .encoder_value = &state_state3_encoder_value,
 };
 
 static struct sm_state const sm_all_states[] = {

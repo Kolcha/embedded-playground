@@ -10,6 +10,8 @@ struct sm_state_api {
   void(*button_m)(state_data_t*);
   void(*button_1)(state_data_t*);
   void(*button_2)(state_data_t*);
+
+  void(*encoder_value)(state_data_t*, uint32_t);
 };
 
 extern state_data_t app_state_data;

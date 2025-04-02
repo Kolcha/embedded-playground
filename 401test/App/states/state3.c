@@ -47,3 +47,8 @@ void state_state3_button_2(state_data_t* data)
   if (++number > 999)
     number = 999;
 }
+
+void state_state3_encoder_value(state_data_t* data, uint32_t val)
+{
+  number = val;
+}

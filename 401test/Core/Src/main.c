@@ -32,6 +32,7 @@
 
 #include "display.h"
 #include "gpio_button.h"
+#include "rotary_encoder.h"
 
 #include "app_state_machine.h"
 /* USER CODE END Includes */
@@ -67,6 +68,8 @@ GPIO_Button ubtn = GPIO_BUTTON(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
 GPIO_Button btn1 = GPIO_BUTTON(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
 // pull-up resistor seems to be dead on pin B2, so use pull-down
 GPIO_Button btn2 = GPIO_BUTTON(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);
+
+static RotaryEncoder renc = ROTARY_ENCODER(TIM4);
 
 static volatile bool time_to_render = true;
 
@@ -110,8 +113,8 @@ static void ssd1306_init()
     0xA8, 0x1F,                 // MUX Ratio, 31 (H - 1)
     0xD3, 0x00,			// display offset, 0
     0x40 | 0x00,		// display start line, 0
-    0xA0 | 0x00,                // segment (column) re-map (A0/A1)
-    0xC0 | 0x00,                // scan direction (C0/C8)
+    0xA0 | 0x01,                // segment (column) re-map (A0/A1)
+    0xC0 | 0x08,                // scan direction (C0/C8)
     0xDA, 0x02,                 // wiring configuration
     0x81, 0x7F,			// contrast
     0xA4,			// follow RAM
@@ -144,6 +147,15 @@ static void button_2_handle_short_press()
   printf("%s\n", __FUNCTION__);
   app_sm.curr_state->api->button_2(&app_state_data);
 }
+
+static void value_changed_handler(uint32_t val)
+{
+  val >>= 1;
+//  val = val * 1000 / (TIM4->ARR / 2);
+  printf("encoder value: %lu\n", val);
+  if (app_sm.curr_state->api->encoder_value)
+    app_sm.curr_state->api->encoder_value(&app_state_data, val);
+}
 /* USER CODE END 0 */
 
 /**
@@ -161,6 +173,8 @@ int main(void)
 
   btn1.click_handler = &button_1_handle_short_press;
   btn2.click_handler = &button_2_handle_short_press;
+
+  renc.value_changed_handler = &value_changed_handler;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -191,7 +205,9 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM10_Init();
   MX_USART2_UART_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
+  HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
   HAL_Delay(10);  // some delay is required to get display work from cold start
   ssd1306_init();
   HAL_TIM_Base_Start_IT(&htim10);
@@ -206,6 +222,7 @@ int main(void)
     GPIO_ButtonCheckState(&ubtn);
     GPIO_ButtonCheckState(&btn1);
     GPIO_ButtonCheckState(&btn2);
+    RotaryEncoderGetValue(&renc);
 
     if (time_to_render && i2c_state == 0) {
       uint32_t rst = HAL_GetTick();
