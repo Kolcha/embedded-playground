@@ -1,14 +1,17 @@
 #include "esp32-hal-rgb-led.h"
 
-#define WS2812_OUT_PIN      13
+#define WS2812_OUT_PIN      5
 
 static const uint8_t colors[] = {
   0xFF, 0x00, 0x00,
-  0xFF, 0xFF, 0x00,
+  0xFF, 0x40, 0x00,
+  0xFF, 0x80, 0x00,
   0x00, 0xFF, 0x00,
   0x00, 0xFF, 0xFF,
   0x00, 0x00, 0xFF,
-  0xFF, 0x00, 0xFF,
+  0x40, 0x00, 0xFF,
+  0x80, 0x00, 0xFF,
+  0xFF, 0x00, 0x80,
 };
 
 static const size_t colors_count = sizeof(colors) / 3;
@@ -28,9 +31,9 @@ void loop() {
       uint8_t r = colors[3*color_idx + 0];
       uint8_t g = colors[3*color_idx + 1];
       uint8_t b = colors[3*color_idx + 2];
-      neopixelWrite(WS2812_OUT_PIN, r, g, b);
+      rgbLedWrite(WS2812_OUT_PIN, r, g, b);
     } else {
-      neopixelWrite(WS2812_OUT_PIN, 0, 0, 0);
+      rgbLedWrite(WS2812_OUT_PIN, 0, 0, 0);
     }
   }
 
