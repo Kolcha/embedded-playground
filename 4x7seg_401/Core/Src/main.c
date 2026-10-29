@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -125,6 +126,10 @@ static void set_active_digit(int d)
   htim4.Instance->CCER &= ~TIM_CCER_CCxE_MASK;
   htim4.Instance->CCER |= (1 << d*4);
 }
+
+long map(long x, long in_min, long in_max, long out_min, long out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 /* USER CODE END 0 */
 
 /**
@@ -160,6 +165,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM10_Init();
   MX_TIM4_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   HAL_TIM_Base_Start_IT(&htim10);
@@ -167,6 +173,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
+  HAL_ADC_Start(&hadc1);
 
   htim4.Instance->CCR1 = htim4.Instance->ARR / 4;
   htim4.Instance->CCR2 = htim4.Instance->ARR / 4;
@@ -200,6 +207,15 @@ int main(void)
       values[1] = cnt / 1e2; cnt -= values[1] * 1e2;
       values[2] = cnt / 1e1; cnt -= values[2] * 1e1;
       values[3] = cnt;
+
+      if (HAL_ADC_PollForConversion(&hadc1, 2) == HAL_OK) {
+	uint32_t val = HAL_ADC_GetValue(&hadc1);
+	val = map(val, 250, 3750, htim4.Instance->ARR / 16, htim4.Instance->ARR / 2);
+	htim4.Instance->CCR1 = val;
+	htim4.Instance->CCR2 = val;
+	htim4.Instance->CCR3 = val;
+	htim4.Instance->CCR4 = val;
+      }
     }
     set_active_digit(d);
 //    display_segments(data[d]);
@@ -274,6 +290,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == KEY_Pin) {
     htim3.Instance->CNT = htim3.Instance->ARR / 2 + 1;
+  }
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  static uint32_t last_check = 0;
+  if (HAL_GetTick() - last_check > 250) {
+      last_check = HAL_GetTick();
+      uint32_t adc_val = HAL_ADC_GetValue(&hadc1);
+      printf("adc value: %lu\n", adc_val);
   }
 }
 /* USER CODE END 4 */
