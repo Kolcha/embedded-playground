@@ -188,11 +188,19 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   int d = 0;
 //  uint8_t const data[] = {0x39, 0x67, 0x7C, 0x0F};
-  int const values[] = {1, 2, 3, 4};
+  int values[] = {1, 2, 3, 4};
+  htim3.Instance->CNT = htim3.Instance->ARR / 2 + 1;
   while (1)
   {
 //    int cnt_dwn = __HAL_TIM_IS_TIM_COUNTING_DOWN(&htim3);
 //    printf("val: %lu, dwn: %d\n", htim3.Instance->CNT, cnt_dwn);
+    if (d == 0) {
+      long cnt = htim3.Instance->CNT;
+      values[0] = cnt / 1e3; cnt -= values[0] * 1e3;
+      values[1] = cnt / 1e2; cnt -= values[1] * 1e2;
+      values[2] = cnt / 1e1; cnt -= values[2] * 1e1;
+      values[3] = cnt;
+    }
     set_active_digit(d);
 //    display_segments(data[d]);
     display_number(values[d], false);
@@ -260,6 +268,13 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == KEY_Pin) {
+    htim3.Instance->CNT = htim3.Instance->ARR / 2 + 1;
+  }
 }
 /* USER CODE END 4 */
 
